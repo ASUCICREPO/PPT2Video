@@ -1,0 +1,10 @@
+flask
+boto3
+botocore
+ffmpeg-python
+moviepy
+pdf2image
+python-pptx
+jsonify
+
+
