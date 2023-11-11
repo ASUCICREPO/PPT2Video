@@ -18,10 +18,15 @@ app = Flask(__name__)
 polly_vtt = PollyVTT()
 
 #Environment Vars & Global Vars
-AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY') #"AKIATECO4S3H747KUZ7L" #"AKIAYTK6Q4BJ7IQ4T54B" 
-AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_KEY')#"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" #"H3uh5+DP6IBFgGUB7xScOiupsk+xIUlxopKq9ZES"
-bucket_name = os.environ.get('BUCKET_NAME')#'ppt2video-test'
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY')  
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_KEY')
+bucket_name = os.environ.get('BUCKET_NAME')
 AWS_REGION = "us-east-1"
+
+with open('/home/ubuntu/.aws/credentials','w') as file:
+    file.write("[default]\n")
+    file.write(f'aws_access_key_id={AWS_ACCESS_KEY_ID}\n')
+    file.write(f'aws_secret_access_key={AWS_SECRET_ACCESS_KEY}\n')
 
 polly_client = boto3.Session(
     aws_access_key_id=AWS_ACCESS_KEY_ID,
@@ -134,7 +139,7 @@ def convert_pptx_to_mp4():
         print("File Downloaded successfully.......")
     except Exception as e:
         #print(f"Error downloading the file: {e}")
-        return f"Error downloading the file: {e}",500
+        return f"Error downloading the file: Please check your credentials: {e}",500
     
     command = ['soffice','--headless','--convert-to','pdf','--outdir','pptx', PPTX_FILE]              #outdir params
     process = Popen(command)
