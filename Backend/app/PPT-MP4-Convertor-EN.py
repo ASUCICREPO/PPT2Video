@@ -12,6 +12,7 @@ from botocore.exceptions import NoCredentialsError
 #import jsonify
 from subprocess import Popen
 from pdf2image import convert_from_path
+from botocore.exceptions import ClientError
 
 app = Flask(__name__)
 
@@ -111,6 +112,9 @@ def create_download_presigned_url(bucket_name, object_name):
         )
     except NoCredentialsError:
         print("Credentials not available")
+        return None
+    except ClientError as e:
+        print(e)
         return None
     return response
 
@@ -226,6 +230,7 @@ def convert_pptx_to_mp4():
     except Exception as e:
         print(f"Error uploading file: {e}")
     download_url = create_download_presigned_url(bucket_name, OUTPUT_VIDEO.replace("output/",""))
+    print(jsonify(downloadurl=download_url))
     cleanup(object_name)
     return jsonify(downloadurl=download_url), 200
     

@@ -107,8 +107,9 @@ if start_upload:
             response = requests.get(download_api, data=details)
             returnedres = response.content.decode('utf-8')
             download_link = json.loads(returnedres)
+            print(returnedres, download_link)
             download_link = download_link["downloadurl"]
-        if download_link is None:
+        if download_link is None or 'downloadurl' not in download_link:
             st.error("Error in Receiving the Download link !!")
         file_content = requests.get(download_link)
         st.video(download_link)

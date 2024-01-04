@@ -23,23 +23,16 @@ RUN pip install .
 WORKDIR /home/ubuntu
 RUN mkdir -p /home/ubuntu/.aws
 COPY config /home/ubuntu/.aws/
-#COPY entrypoint.sh ./app/
 RUN export PATH=/usr/bin/libreoffice:$PATH
 COPY app/PPT-MP4-Convertor-EN.py ./app/
-
-
 
 # Modifying all permissions
 USER root
 RUN chmod 755 ./app/PPT-MP4-Convertor-EN.py
 RUN chown -R ubuntu:ubuntu .aws && chown -R ubuntu:ubuntu ./app/PPT-MP4-Convertor-EN.py && chown -R ubuntu:ubuntu ./app/requirements.txt
-# && chown -R ubuntu:ubuntu ./app/entrypoint.sh
-
 
 # Running Flask Server
 USER ubuntu
-#RUN chmod +777 ./app/entrypoint.sh
 WORKDIR /home/ubuntu/app
 EXPOSE 5000
-#ENTRYPOINT [ "./entrypoint.sh" ]
 CMD [ "python3", "PPT-MP4-Convertor-EN.py"]
