@@ -104,19 +104,24 @@ def create_presigned_url(bucket_name, object_name):
     return response
 
 def create_download_presigned_url(bucket_name, object_name):
-    try:
-        response = s3_cli.generate_presigned_url(
-            'get_object',
-            Params={'Bucket': bucket_name, 'Key': object_name},
-            ExpiresIn=300
-        )
-    except NoCredentialsError:
-        print("Credentials not available")
+    # try:
+    #     response = s3_cli.generate_presigned_url(
+    #         'get_object',
+    #         Params={'Bucket': bucket_name, 'Key': object_name},
+    #         ExpiresIn=300
+    #     )
+    # except NoCredentialsError:
+    #     print("Credentials not available")
+    #     return None
+    # except ClientError as e:
+    #     print(e)
+    #     return None
+    aws_cli_command = ['aws', 's3', 'presign',f's3://{bucket_name}/{object_name}','--expires-in', '300']
+    result = Popen(aws_cli_command, capture_output=True, text=True)
+    if result.returncode != 0:
+        print(f"Error: {result.stderr}")
         return None
-    except ClientError as e:
-        print(e)
-        return None
-    return response
+    return result.stdout.strip()
 
 @app.route('/videolink',methods=['GET'])
 def convert_pptx_to_mp4():
