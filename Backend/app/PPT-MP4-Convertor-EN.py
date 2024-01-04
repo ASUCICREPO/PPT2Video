@@ -10,7 +10,7 @@ from polly_vtt import PollyVTT
 import requests
 from botocore.exceptions import NoCredentialsError
 #import jsonify
-from subprocess import Popen
+import subprocess
 from pdf2image import convert_from_path
 from botocore.exceptions import ClientError
 
@@ -117,10 +117,9 @@ def create_download_presigned_url(bucket_name, object_name):
     #     print(e)
     #     return None
     aws_cli_command = ['aws', 's3', 'presign',f's3://{bucket_name}/{object_name}','--expires-in', '300']
-    result = Popen(aws_cli_command, capture_output=True, text=True)
+    result = subprocess.run(aws_cli_command, capture_output=True, text=True)
     if result.returncode != 0:
         print(f"Error: {result.stderr}")
-        return None
     return result.stdout.strip()
 
 @app.route('/videolink',methods=['GET'])
@@ -151,11 +150,10 @@ def convert_pptx_to_mp4():
         return f"Error downloading the file: Please check your credentials: {e}",500
     
     command = ['soffice','--headless','--convert-to','pdf','--outdir','pptx', PPTX_FILE]              #outdir params
-    process = Popen(command)
+    process = subprocess.Popen(command)
     process.wait()
 
     pdf_file_name = PPTX_FILE.replace('.pptx','.pdf')
-
     images = convert_from_path(pdf_file_name)
 
     for i, image in enumerate(images):
@@ -235,10 +233,12 @@ def convert_pptx_to_mp4():
     except Exception as e:
         print(f"Error uploading file: {e}")
     download_url = create_download_presigned_url(bucket_name, OUTPUT_VIDEO.replace("output/",""))
-    print(jsonify(downloadurl=download_url))
-    cleanup(object_name)
-    return jsonify(downloadurl=download_url), 200
-    
+    if download_url.startswith('https'):
+        print('presigned_URl: ',download_url)
+        cleanup(object_name)
+        return jsonify(downloadurl=download_url), 200
+    else:
+        return jsonify(error='Error in Download link generation'), 500
 def cleanup(object_name):
     #clean pdf
     filePrefix = object_name.split('.')[0]

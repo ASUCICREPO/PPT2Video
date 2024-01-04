@@ -109,7 +109,7 @@ if start_upload:
             download_link = json.loads(returnedres)
             print(returnedres, download_link)
             download_link = download_link["downloadurl"]
-        if download_link is None or 'downloadurl' not in download_link:
+        if download_link is None:
             st.error("Error in Receiving the Download link !!")
         file_content = requests.get(download_link)
         st.video(download_link)
